@@ -1,0 +1,44 @@
+# Node modules
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# dotenv environment files
+.env
+.env.*  # nếu bạn dùng nhiều môi trường như .env.production, .env.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+
+# Build output
+dist/
+build/
+
+# Database or temp files
+*.sqlite
+*.sqlite3
+*.db
+*.pid
+
+# Coverage reports
+coverage/
+.nyc_output/
+
+# Optional: PM2 process files
+pids/
+*.pid
+*.seed
+
+# Optional: uploads or public file cache
+uploads/
+public/cache/
