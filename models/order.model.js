@@ -1,51 +1,43 @@
 const db = require("../config/database");
+const orderItemModel = require("./order_items.model");
+
 
 /**
- * Create a new order with the given items
- * @param {string} customer_name - The name of the customer
+ * Create a new order with items and calculate the total amount
+ * @param {string} customerName - The name of the customer
  * @param {string} status - The status of the order
- * @param {Object[]} items - An array of objects with the product ID, quantity and price
- * @param {Date} created_at - The date the order was created
- * @returns {Promise<number>} A promise that resolves to the ID of the newly created order
+ * @param {Object[]} items - An array of objects with the following properties:
+ *   - `product_id`: The ID of the product
+ *   - `quantity`: The quantity of the product
+ *   - `price`: The price of the product
+ * @param {Date} createdAt - The date and time when the order is created
+ * @returns {Promise<number>} The ID of the newly created order
  */
-exports.createOrderWithItems = async (customer_name, status, items, created_at) => {
-    const conn = await db.getConnection();
+exports.createOrderWithItems = async (
+  customerName,
+  status,
+  items,
+  createdAt
+) => {
+  const conn = await db.getConnection();
   try {
     await conn.beginTransaction();
 
-    // Insert the order into the orders table
+    // B1. Insert order
     const [orderResult] = await conn.query(
       `INSERT INTO orders (customer_name, status, created_at) VALUES (?, ?, ?)`,
-      [customer_name, status, created_at]
+      [customerName, status, createdAt]
     );
     const orderId = orderResult.insertId;
 
-    let totalAmount = 0;
+    // B2. Insert order_items and calculate total_amount
+    const totalAmount = await orderItemModel.insertItemsAndCalculateTotal(
+      conn,
+      orderId,
+      items
+    );
 
-    // Insert the order items into the order_items table
-    for (const item of items) {
-      const [productRows] = await conn.query(
-        `SELECT price FROM products WHERE id = ?`,
-        [item.product_id]
-      );
-
-      if (productRows.length === 0)
-        throw new Error(`Product ID ${item.product_id} not found`);
-
-      // Calculate the total amount
-      const price = productRows[0].price;
-      const itemTotal = price * item.quantity;
-      totalAmount += itemTotal;
-
-      // Insert the order item into the order_items table
-      await conn.query(
-        `INSERT INTO order_items (order_id, product_id, quantity, price)
-           VALUES (?, ?, ?, ?)`,
-        [orderId, item.product_id, item.quantity, price]
-      );
-    }
-
-    // Update the total amount of the order
+    // B3. Update total_amount
     await conn.query(`UPDATE orders SET total_amount = ? WHERE id = ?`, [
       totalAmount,
       orderId,
