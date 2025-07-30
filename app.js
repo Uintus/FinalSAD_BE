@@ -11,8 +11,9 @@ const errorHandler = require('./middlewares/errorHandler');
 
 // Routes
 const dashboardRoutes = require('./routes/dashboard.routes');
-// const orderRoutes = require('./routes/order.routes');
-// const productRoutes = require('./routes/product.routes');
+const orderRoutes = require('./routes/order.routes');
+const categoryRoutes = require('./routes/category.routes');
+const productRoutes = require('./routes/product.routes');
 
 // Use middlewares
 app.use(bodyParser());
@@ -20,6 +21,9 @@ app.use(errorHandler);
 
 // Use routes
 router.use('/api/dashboard', dashboardRoutes.routes());
+router.use('/api/order', orderRoutes.routes());
+router.use('/api/category', categoryRoutes.routes());
+router.use('/api/product', productRoutes.routes());
 
 
 app.use(router.routes()).use(router.allowedMethods());

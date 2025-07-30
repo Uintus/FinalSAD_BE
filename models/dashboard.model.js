@@ -359,9 +359,9 @@ exports.fetchTopProducts = async (start, end, parsedSort, category_id, limit) =>
   let categoryFilter = "";
 
   // If a category is specified, add it to the query and parameters
-  if (category) {
+  if (category_id) {
     categoryFilter = "AND p.category_id = ?";
-    params.push(category);
+    params.push(category_id);
   }
 
   // Add limit to parameters

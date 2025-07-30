@@ -15,9 +15,9 @@ export const VALUE_TYPE = {
 
 // Order status
 export const ORDER_STATUS = {
-  PENDING: 'pending',
-  COMPLETED: 'completed',
-  CANCELLED: 'cancelled',
+  PENDING: '1',
+  COMPLETED: '2',
+  CANCELLED: '0',
 };
 
 // Top products limit showed in dashboard table
