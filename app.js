@@ -31,5 +31,5 @@ app.use(router.routes()).use(router.allowedMethods());
 // Start server
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on https://ecommerce-dashboard.up.railway.app:${PORT}`);
 });
