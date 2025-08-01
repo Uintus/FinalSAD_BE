@@ -25,3 +25,30 @@ exports.getProductsByCategory = async (ctx) => {
         };
     }
 };
+
+/**
+ * Get all products
+ * @param {Context} ctx - The context of the request
+ * @returns {Promise} A promise that resolves to a response object
+ */
+exports.getAll = async (ctx) => {
+    try {
+        // Get all products from the database
+        const products = await productModel.getAll();
+        // Return the products in the response
+        ctx.body = {
+            success: true,
+            data: products,
+        };
+    } catch (err) {
+        // Log the error and rethrow it for higher-level error handling
+        console.error("Error getting products:", err);
+        // Return an error response
+        ctx.status = 500;
+        ctx.body = {
+            success: false,
+            message: "Failed to get products",
+            error: err.message,
+        };
+    }
+};

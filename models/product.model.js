@@ -36,3 +36,15 @@ exports.getProductsByIds = async (conn, ids) => {
   // Return the results
   return rows;
 };
+
+
+/**
+ * Get all the products
+ * @returns {Promise<Array>} A promise that resolves to an array of products
+ */
+exports.getAll = async () => {
+  // Query the database to get all the products
+  const [rows] = await db.query("SELECT id, name FROM products");
+  // Return the results
+  return rows;
+};
