@@ -5,7 +5,6 @@ const { sortParser } = require("../utils/commonUtils");
 const { TOP_PRODUCTS_LIMIT } = require("../constants/dashboard");
 const { generateChartLabels } = require("../utils/dashboardUtils");
 
-
 /**
  * @function getAll
  * @description Get all the data for the dashboard
@@ -30,7 +29,13 @@ exports.getAll = async (ctx) => {
         // Get the summary total data
         dashboardModel.fetchSummaryTotal(start, end, range),
         // Get the line chart data
-        dashboardModel.fetchLineChartData(start, end, range, groupFormat, labels),
+        dashboardModel.fetchLineChartData(
+          start,
+          end,
+          range,
+          groupFormat,
+          labels
+        ),
         // Get the pie chart data
         dashboardModel.fetchPieChartData(start, end),
         // Get the bar chart data
@@ -76,12 +81,11 @@ exports.getTopProducts = async (ctx) => {
       category_id,
       TOP_PRODUCTS_LIMIT
     );
+
     // Return the top products in the response
     ctx.body = {
       success: true,
-      data: {
-        topProducts,
-      },
+      data: topProducts,
     };
   } catch (error) {
     // Log the error and rethrow it for higher-level error handling

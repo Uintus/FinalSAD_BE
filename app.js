@@ -2,9 +2,16 @@ const Koa = require('koa');
 const Router = require('koa-router');
 const bodyParser = require('koa-bodyparser');
 require('dotenv').config();
+const cors = require('@koa/cors');
 
 const app = new Koa();
 const router = new Router();
+
+// CORS
+app.use(cors({
+  origin: process.env.CORS_ORIGIN,
+  credentials: true, 
+}));
 
 // Middlewares
 const errorHandler = require('./middlewares/errorHandler');

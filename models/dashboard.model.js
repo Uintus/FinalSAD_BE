@@ -103,8 +103,8 @@ exports.fetchLineChartData = async (start, end, range, groupFormat, labels) => {
   // Create the final result array
   const lineChartData = labels.map((label) => ({
     label: label,
-    total_revenue: dataMap[label]?.total_revenue || 0,
-    avg_revenue: dataMap[label]?.avg_revenue || 0,
+    total: Math.round(dataMap[label]?.total_revenue) || 0,
+    avg: Math.round(dataMap[label]?.avg_revenue) || 0,
   }));
 
   return lineChartData;
@@ -176,7 +176,7 @@ exports.fetchBarChartData = async (start, end) => {
 
   return rows.map((row) => ({
     label: row.label,
-    total_revenue: parseFloat(row.total_revenue),
+    total: parseFloat(row.total_revenue),
   }));
 };
 
