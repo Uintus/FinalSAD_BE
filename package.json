@@ -17,6 +17,7 @@
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
     "dotenv": "^17.2.1",
+    "exceljs": "^4.4.0",
     "koa": "^3.0.0",
     "koa-bodyparser": "^4.4.1",
     "koa-cors": "^0.0.16",

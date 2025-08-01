@@ -97,3 +97,50 @@ exports.getTopProducts = async (ctx) => {
     };
   }
 };
+
+/**
+ * Export the top products data to an Excel file
+ * @param {Context} ctx - The context of the request
+ * @returns {Promise} A promise that resolves to a response object
+ */
+exports.exportTopProductsExcel = async (ctx) => {
+  try {
+    const { start, end } = getDateRange(
+      ctx.query.range || RANGE_TYPE.LAST_7_DAYS
+    );
+    const parsedSort = sortParser(ctx.query.sort || "amount-desc");
+    const category_id = ctx.query.category_id || null;
+
+    // Get the top products
+    const products = await dashboardModel.fetchTopProducts(
+      start,
+      end,
+      parsedSort,
+      category_id,
+      TOP_PRODUCTS_LIMIT
+    );
+
+    // If there are no products, return a 204 No Content response
+    if (!products || products.length === 0) {
+      ctx.status = 204;
+      ctx.body = null;
+      return;
+    }
+
+    // Generate the Excel buffer
+    const buffer = await dashboardModel.generateTopProductsExcelBuffer(
+      products
+    );
+
+    ctx.set(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    ctx.set("Content-Disposition", "attachment; filename=top_products.xlsx");
+    ctx.body = buffer;
+  } catch (e) {
+    console.error("Error exporting top products:", e);
+    ctx.status = 500;
+    ctx.body = "Internal Server Error";
+  }
+};

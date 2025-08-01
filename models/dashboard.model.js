@@ -3,6 +3,7 @@ const { getPreviousPeriod } = require("../utils/dashboardUtils");
 const { calcPercentChange } = require("../utils/dashboardUtils");
 const { ORDER_STATUS } = require("../constants/dashboard");
 const { RANGE_TYPE } = require("../constants/dashboard");
+const ExcelJS = require("exceljs");
 
 /**
  * @function fetchSummaryTotal
@@ -343,7 +344,7 @@ async function compareWithPreviousPeriod({
 
 /**
  * Fetch the top products within a specified date range, sorted by the given criteria.
- * 
+ *
  * @param {Date} start - The start date of the period
  * @param {Date} end - The end date of the period
  * @param {Object} parsedSort - An object containing sortKey and sortOrder
@@ -351,7 +352,13 @@ async function compareWithPreviousPeriod({
  * @param {number} limit - The maximum number of products to return
  * @returns {Promise<Array>} A promise that resolves to an array of top products
  */
-exports.fetchTopProducts = async (start, end, parsedSort, category_id, limit) => {
+exports.fetchTopProducts = async (
+  start,
+  end,
+  parsedSort,
+  category_id,
+  limit
+) => {
   const { sortKey, sortOrder } = parsedSort;
 
   // Initialize query parameters with order status and date range
@@ -378,7 +385,7 @@ exports.fetchTopProducts = async (start, end, parsedSort, category_id, limit) =>
 
   // Determine the column to sort by, defaulting to total amount
   const orderBy = sortColumnMap[sortKey] || "SUM(oi.quantity * oi.price)";
-  
+
   // SQL query to fetch top products with filtering, grouping, and ordering
   const sql = `
     SELECT 
@@ -410,4 +417,80 @@ exports.fetchTopProducts = async (start, end, parsedSort, category_id, limit) =>
     quantity: parseInt(row.total_quantity),
     amount: parseFloat(row.total_amount),
   }));
+};
+
+/**
+ * Export top products data to an Excel file
+ * @param {Context} ctx - The context of the request
+ * @returns {Promise} A promise that resolves to a response object
+ */
+exports.getTopProductsExcelBuffer = async (
+  start,
+  end,
+  sort,
+  category_id,
+  limit
+) => {
+  const products = await this.fetchTopProducts(
+    start,
+    end,
+    sort,
+    category_id,
+    limit
+  );
+
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet("Top Products");
+
+  worksheet.columns = [
+    { header: "STT", key: "stt", width: 10 }, 
+    { header: "Product Name", key: "name", width: 30 },
+    { header: "Category", key: "category", width: 25 },
+    { header: "Price", key: "price", width: 15 },
+    { header: "Quantity", key: "quantity", width: 15 },
+    { header: "Total Amount", key: "amount", width: 20 },
+  ];
+
+  // Style header
+  worksheet.getRow(1).eachCell((cell) => {
+    cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+    cell.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FF4F81BD" },
+    };
+    cell.alignment = { horizontal: "center" };
+    cell.border = {
+      top: { style: "thin" },
+      left: { style: "thin" },
+      bottom: { style: "thin" },
+      right: { style: "thin" },
+    };
+  });
+
+  // Add data rows with STT
+  products.forEach((product, index) => {
+    worksheet.addRow({
+      stt: index + 1,
+      ...product,
+    });
+  });
+
+  worksheet.getColumn("price").numFmt = "$#,##0.00";
+  worksheet.getColumn("amount").numFmt = "$#,##0.00";
+
+  // Add border to all cells
+  worksheet.eachRow({ includeEmpty: false }, (row) => {
+    row.eachCell((cell) => {
+      cell.border = {
+        top: { style: "thin" },
+        left: { style: "thin" },
+        bottom: { style: "thin" },
+        right: { style: "thin" },
+      };
+    });
+  });
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  return buffer;
 };
