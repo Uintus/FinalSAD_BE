@@ -424,26 +424,12 @@ exports.fetchTopProducts = async (
  * @param {Context} ctx - The context of the request
  * @returns {Promise} A promise that resolves to a response object
  */
-exports.getTopProductsExcelBuffer = async (
-  start,
-  end,
-  sort,
-  category_id,
-  limit
-) => {
-  const products = await this.fetchTopProducts(
-    start,
-    end,
-    sort,
-    category_id,
-    limit
-  );
-
+exports.getTopProductsExcelBuffer = async (products) => {
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet("Top Products");
 
   worksheet.columns = [
-    { header: "STT", key: "stt", width: 10 }, 
+    { header: "STT", key: "stt", width: 10 },
     { header: "Product Name", key: "name", width: 30 },
     { header: "Category", key: "category", width: 25 },
     { header: "Price", key: "price", width: 15 },
